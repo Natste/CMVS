@@ -1,9 +1,8 @@
-function data_sample_norm = getNorm(data_sample)
+function dataSampleNorm = get_norm(dataSample)
 %% This function normalizes data with respect to each column
-[row,col] = size(data_sample); 
-data_norm = zeros(row,col);
+[row, col] = size(dataSample);
+dataNorm = zeros(row, col);
 for i = 1:col
-    data_norm(:,i) = data_sample(:,i)/max(abs(data_sample(:,i)));
+    dataNorm(:, i) = dataSample(:, i) / max(abs(dataSample(:, i)));
 end
-data_sample_norm = data_norm;
-end
+dataSampleNorm = dataNorm;

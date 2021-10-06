@@ -1,10 +1,10 @@
-function data_sample = getFrame(data,x_start,x_end)
+function dataSampleRange = get_sample_range(data, dataStart, dataEnd)
 %% This function gets a specified frame from x_start to x_end of the dataset.
-data_length = x_end - x_start + 1;
-data_sample = zeros(data_length,1,9);
-for i = 1:9
-    actual_temp = data(x_start:x_end,i);
-    data_sample(:,:,i) = actual_temp;
+nSamples = dataEnd - dataStart + 1;
+nSensors = width(data);
+dataSampleRange = zeros(nSamples, nSensors);
+for i = 1:nSensors
+%     actual_temp = data(x_start:x_end, i);
+    dataSampleRange(:, i) = data(dataStart:dataEnd, i);
 end
-data_sample = reshape(data_sample,data_length,9);
-end
+% data_sample = reshape(data_sample, num_samples, num_sensors);

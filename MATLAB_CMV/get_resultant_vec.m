@@ -1,27 +1,27 @@
-function [M, Phase] = getResultantVector(magnitude,theta)
+function [M, phase] = get_resultant_vec(magnitude, theta)
 % This function converts the magnitudes and angles into a phasor. The
-% resultant vector's is then decomposed as magnitude, M, and angle, Phase.
+% resultant vector's is then decomposed as magnitude, M, and angle, phase.
 
-z_total = 0;
+zTotal = 0;
 threshold = 0.02;
-[~,~,pages] = size(magnitude);
-M = zeros(pages,1);
-Phase = zeros(pages,1);
+[nRows, nCols, nPages] = size(magnitude);
+M = zeros(nPages, 1);
+phase = zeros(nPages, 1);
 
-for idx = 1:(pages-1)
-    for i = 1:3
-        for j = 1:3
-            R = magnitude(i,j,idx);
-            rtheta = deg2rad(theta(i,j,idx));
-            
-            if R > threshold                       
-                z = R*(cos(rtheta)+1i*sin(rtheta));                         %convert into complex form
-                z_total = z_total + z;                                      %add complex numbers
+for iPage = 1:(nPages - 1)
+    for iRow = 1:nRows
+        for iCol = 1:nCols
+            R = magnitude(iRow, iCol, iPage);
+            rtheta = deg2rad(theta(iRow, iCol, iPage));
+
+            if R > threshold
+                z = R * (cos(rtheta) + j * sin(rtheta));                         %convert into complex form
+                zTotal = zTotal + z;                                      %add complex numbers
             end
         end
     end
-    
-    M(idx) = abs(z_total);
-    Phase(idx) = angle(z_total);
+
+    M(iPage) = abs(zTotal);
+    phase(iPage) = angle(zTotal);
 end
 end
