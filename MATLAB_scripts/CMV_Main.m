@@ -1,8 +1,8 @@
-clc; clear; close all;
+clc; clear all; close all;
 %% Load CSV files
 
-filepath = 'C:\Users\dell\Desktop\CMV_Research\MATLAB\MATLAB_scripts\test_data2.csv';     %set folder location to save figures
-save_filepath = 'C:\Users\dell\Desktop\CMV_Research\MATLAB\MATLAB_scripts\';
+filepath = 'data.csv';     %set folder location to save figures
+save_filepath = '.';
 
 % Check if folder exists if not make it
 fn = fullfile(save_filepath);
@@ -13,8 +13,11 @@ else
 end
 
 % Read and transfer raw lux data to new array
-data_raw = CMV_dataRead_v3(filepath);
-data = data_raw{1};
+data = readmatrix(filepath);
+nNotNan  = sum(~isnan(data),2);
+nSensors = round(mean(nNotNan));
+data = data(nNotNan == nSensors, :);
+data = rmmissing(data, 2);
 %% Set test parameters
 
 matrix_type = 'I_norm';

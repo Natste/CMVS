@@ -1,0 +1,13 @@
+function outputArray = get_matrix(inputArray, dataWindow)
+  %% This function maps lux data into a matrix
+  SENSOR_ORDER = [5 4 6 8 7 9 2 1 3];
+
+  inputArray = inputArray(:, SENSOR_ORDER);
+  inputArray = movsum(inputArray, dataWindow, 1, Endpoints='discard');
+
+  nSensors = width(inputArray);
+  newshape = [sqrt(nSensors) sqrt(nSensors) []]; %TODO: Replace with more general definition
+  outputArray = reshape(inputArray', newshape);
+  outputArray = permute(outputArray,  [2, 1, 3]);
+  outputArray = outputArray(:, :, 1:dataWindow) / dataWindow;
+end
