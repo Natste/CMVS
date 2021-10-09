@@ -1,12 +1,16 @@
-clf; close all; clear frames;
+clf; close all; clear frames paddedData;
 
 DATA_FILE = 'data1.csv';
 OUTPUT_DIR = 'output';
+% OUTPUT_DIR = 'output';
 MATRIX_TYPE = 'normalized';
 THRESHOLD = 0.03;
 PEAK_DISTANCE = 50;
 PEAK_PROMINENCE = 0.15;%0.016;
 PEAK_WIDTH = 15;
+SENSOR_ORDER  = [5 4 6 8 7 9 2 1 3]; % Northwest to Southeast
+FILL_ORDER  =   [4 1 8 9 6 2 5 3 7]; % N S W E NE SW NW SE O
+% SENSOR_ORDER = FILL_ORDER;
 
 
 figure_setup;
@@ -23,6 +27,10 @@ end
 
 % Read and transfer raw lux data to new array
 data = readmatrix(DATA_FILE);
+%%%
+% data = data(:, 1:end-1);
+% data = data(:, FILL_ORDER);
+%%%
 nNotNan  = sum(~isnan(data),2);
 nSensors = round(mean(nNotNan));
 data = data(nNotNan == nSensors, :);
@@ -33,6 +41,7 @@ iDataEnd = 61;
 iDelta = iDataEnd - iDataStart;
 dataWindow = 10; % TODO: figure why this var was referred to as 'window'
 filter_window = 11;
+
 
 if dataWindow > length(data)
     dataWindow = length(data);
@@ -57,6 +66,24 @@ if ~ismissing([dataWindowWarn, filterWindowWarn, dataEndWarn])
     warning('\n\t%s\n\t%s\n\t%s', dataWindowWarn, filterWindowWarn, dataEndWarn);
 end
 
+if nSensors < 9
+%   paddedData = padarray(data', 9 - width(data), nan, 'post')';
+  paddedData = NaN(length(data), 9);
+  if mod(nSensors, 2)
+    fillOrder = [FILL_ORDER(1:nSensors) FILL_ORDER(end)];
+  else
+    fillOrder = FILL_ORDER;
+  end
+  for iSensor = 1:nSensors
+    paddedData(:, fillOrder(iSensor)) = data(:, iSensor);
+  end
+  % paddedData(:, floor(linspace(1,9,nSensors))) = data;
+  data = fillmissing(paddedData, 'movmean', max(9 - nSensors,2), 2, ...
+                     EndValues='nearest');
+  warning("%d sensors detected. Missing data is being interpolated, and may be inaccurate.", ...
+      nSensors);
+  nSensors = 9;
+end
 
 dataSample =  get_sample_range(data, iDataStart, iDataEnd);
 dataSampleNorm =  get_norm(dataSample);
@@ -67,7 +94,6 @@ plotSets       = {data
                   dataSample
                   smoothSample
                   smoothSampleNorm};
-
 
 figure(FIG_FMT);
 dataPlotFmt.LineWidth = 2;
@@ -81,7 +107,8 @@ for iPlotSet = 1:length(plotSets)
   dataAx = gca;
   dataAx.XLabel.String = 'Time Elapsed (milliseconds)';
   dataAx.YLabel.String = 'Irradiance (W/m^2)';
-  dataAx.XTickLabel = arrayfun(@(x) sprintf('%d', SCALE * x), dataAx.XTick, 'un', 0);
+  dataAx.XTickLabel = arrayfun(@(x) sprintf('%d', SCALE * x), dataAx.XTick,
+                               'un', 0);
   set(dataAx, AX_FMT);
   saveas(gca, fullfile(OUTPUT_DIR, FIGURE_STRINGS(iPlotSet, :)), 'fig');
   saveas(gca, fullfile(OUTPUT_DIR, FIGURE_STRINGS(iPlotSet, :)), 'png');
@@ -131,11 +158,11 @@ saveas(gca, fullfile(OUTPUT_DIR, 'CMV_Sample_Norm'), 'png');
 
 if strcmp(MATRIX_TYPE, 'normalized')
   smoothSampleNorm2 = get_norm(smoothSample); % FIXME: Why is the normalization of smooth sample being defined differently here?
-  luxMatrix =  get_matrix(smoothSampleNorm2, dataWindow);
+  luxMatrix =  get_matrix(smoothSampleNorm2(:, SENSOR_ORDER), dataWindow);
 else
-  luxMatrix =  get_matrix(smoothSample, dataWindow);
+  luxMatrix =  get_matrix(smoothSample(:, SENSOR_ORDER), dataWindow);
 end
-fillmissing(luxMatrix, 'makima');
+
 
 %% Find cmv direction using Gradient Matrix Method
 pages = length(luxMatrix);                                              %find maxnumber of frames
