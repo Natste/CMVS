@@ -1,5 +1,7 @@
 function cmvDirection = get_cmv_direction(angleRad, histPlot, algorithm)
-%% This function gets the CMV direction using algorithm (1) without 2 * pi wraparound or (2) with 2 * pi wraparound
+%% This function gets the CMV direction using algorithm
+% (1) without 2 * pi wraparound or
+% (2) with 2 * pi wraparound
 [max_row, ~] = size(angleRad);
 [~, edge_idx] = max(histPlot.Values);
 edgeVals = histPlot.BinEdges;
