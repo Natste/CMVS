@@ -1,7 +1,7 @@
 clf; close all; clear frames paddedData;
 
 DATA_FILE = '';
-OUTPUT_DIR = 'output';
+OUTPUT_DIR = '';
 % OUTPUT_DIR = 'output';
 MATRIX_TYPE = 'normalized';
 THRESHOLD = 0.03;
@@ -17,10 +17,10 @@ figure_setup;
 load figure_setup SENSOR_STRINGS FIGURE_STRINGS FMT BIN_EDGES SCALE TILE;
 
 if ~isfile(DATA_FILE)
-  DATA_FILE = uigetfile('*.csv;*.txt;*.dat', 'Select Input CSV Data', 'data.csv');
+    DATA_FILE = uigetfile('*.csv;*.txt;*.dat', 'Select Input CSV Data', 'data.csv');
 end
 if ~isfolder(OUTPUT_DIR)
-  OUTPUT_DIR = uigetdir('.', 'Select Output Directory');
+    OUTPUT_DIR = uigetdir('.', 'Select Output Directory');
 end
 
 
@@ -39,7 +39,7 @@ iDataStart = 1;
 iDataEnd = 61;
 iDelta = iDataEnd - iDataStart;
 dataWindow = 10; % TODO: figure why this var was referred to as 'window'
-filter_window = 11;
+filterWindow = 11;
 
 
 if dataWindow > length(data)
@@ -48,9 +48,9 @@ if dataWindow > length(data)
 else
     dataWindowWarn = sprintf('');
 end
-if filter_window > length(data)
-    filter_window = length(data);
-    filterWindowWarn = sprintf("filter_window exceeds length of data and has been trimmed");
+if filterWindow > length(data)
+    filterWindow = length(data);
+    filterWindowWarn = sprintf("filterWindow exceeds length of data and has been trimmed");
 else
     filterWindowWarn = sprintf('');
 end
@@ -66,52 +66,52 @@ if ~ismissing([dataWindowWarn, filterWindowWarn, dataEndWarn])
 end
 
 if nSensors < 9
-%   paddedData = padarray(data', 9 - width(data), nan, 'post')';
-  paddedData = NaN(length(data), 9);
-  if mod(nSensors, 2)
-    fillOrder = [FILL_ORDER(1:nSensors) FILL_ORDER(end)];
-  else
-    fillOrder = FILL_ORDER;
-  end
-  for iSensor = 1:nSensors
-    paddedData(:, fillOrder(iSensor)) = data(:, iSensor);
-  end
-  % paddedData(:, floor(linspace(1,9,nSensors))) = data;
-  data = fillmissing(paddedData, 'movmean', max(9 - nSensors,2), 2, ...
-                     EndValues='nearest');
-  warning("%d sensors detected. Missing data is being interpolated, and may be inaccurate.", ...
-      nSensors);
-  nSensors = 9;
+    %   paddedData = padarray(data', 9 - width(data), nan, 'post')';
+    paddedData = NaN(length(data), 9);
+    if mod(nSensors, 2)
+        fillOrder = [FILL_ORDER(1:nSensors) FILL_ORDER(end)];
+    else
+        fillOrder = FILL_ORDER;
+    end
+    for iSensor = 1:nSensors
+        paddedData(:, fillOrder(iSensor)) = data(:, iSensor);
+    end
+    % paddedData(:, floor(linspace(1,9,nSensors))) = data;
+    data = fillmissing(paddedData, 'movmean', max(9 - nSensors,2), 2, ...
+        EndValues='nearest');
+    warning("%d sensors detected. Missing data is being interpolated, and may be inaccurate.", ...
+        nSensors);
+    nSensors = 9;
 end
 
 dataSample =  get_sample_range(data, iDataStart, iDataEnd);
 dataSampleNorm =  get_norm(dataSample);
-smoothSample = smoothdata(dataSample, 'sgolay', filter_window);
-smoothSampleNorm = smoothdata(dataSampleNorm, 'sgolay', filter_window);
+smoothSample = smoothdata(dataSample, 'sgolay', filterWindow);
+smoothSampleNorm = smoothdata(dataSampleNorm, 'sgolay', filterWindow);
 
 plotSets       = {data
-                  dataSample
-                  smoothSample
-                  smoothSampleNorm};
+    dataSample
+    smoothSample
+    smoothSampleNorm};
 
 figure(FMT.FIG);
 dataPlotFmt.LineWidth = 2;
 for iPlotSet = 1:length(plotSets)
-  dataPlot = plot(plotSets{iPlotSet});
-  for iSensor = 1:nSensors
-    dataPlotFmt.DisplayName = SENSOR_STRINGS(iSensor, :);
-    set(dataPlot(iSensor), dataPlotFmt);
-  end
-  legend('show');
-  dataAx = gca;
-  xlabel('Time Elapsed (milliseconds)');
-  ylabel('Irradiance (W/m^2)');
-  dataAx.XTickLabel = arrayfun(@(x) sprintf('%d', SCALE * x), dataAx.XTick,...
-                               'un', 0);
-  set(dataAx, FMT.AX);
-  saveas(gca, fullfile(OUTPUT_DIR, FIGURE_STRINGS(iPlotSet, :)), 'fig');
-  saveas(gca, fullfile(OUTPUT_DIR, FIGURE_STRINGS(iPlotSet, :)), 'png');
-  close
+    dataPlot = plot(plotSets{iPlotSet});
+    for iSensor = 1:nSensors
+        dataPlotFmt.DisplayName = SENSOR_STRINGS(iSensor, :);
+        set(dataPlot(iSensor), dataPlotFmt);
+    end
+    legend('show');
+    dataAx = gca;
+    xlabel('Time Elapsed (milliseconds)');
+    ylabel('Irradiance (W/m^2)');
+    dataAx.XTickLabel = arrayfun(@(x) sprintf('%d', SCALE * x), dataAx.XTick,...
+        'un', 0);
+    set(dataAx, FMT.AX);
+    saveas(gca, fullfile(OUTPUT_DIR, FIGURE_STRINGS(iPlotSet, :)), 'fig');
+    saveas(gca, fullfile(OUTPUT_DIR, FIGURE_STRINGS(iPlotSet, :)), 'png');
+    close
 end
 
 %% Find peaks and dips
@@ -143,7 +143,7 @@ for iSensor = 1:nSensors
     end
 
     sensorPlot(iSensor) = plot(t, smoothSampleNorm(:, iSensor), ...
-                               DisplayName='Origin Sensor', LineWidth=2);
+        DisplayName='Origin Sensor', LineWidth=2);
     set(sensorPlot(iSensor), dataPlotFmt);
     plot(t(dipLoc), 1 / dip, 'rs', 'MarkerSize', 10);
 end
@@ -157,10 +157,10 @@ saveas(gca, fullfile(OUTPUT_DIR, 'CMV_Sample_Norm'), 'fig');
 saveas(gca, fullfile(OUTPUT_DIR, 'CMV_Sample_Norm'), 'png');
 
 if strcmp(MATRIX_TYPE, 'normalized')
-  smoothSampleNorm2 = get_norm(smoothSample); % FIXME: Why is the normalization of smooth sample being defined differently here?
-  luxMatrix =  get_matrix(smoothSampleNorm2(:, SENSOR_ORDER), dataWindow);
+    smoothSampleNorm2 = get_norm(smoothSample); % FIXME: Why is the normalization of smooth sample being defined differently here?
+    luxMatrix =  get_matrix(smoothSampleNorm2(:, SENSOR_ORDER), dataWindow);
 else
-  luxMatrix =  get_matrix(smoothSample(:, SENSOR_ORDER), dataWindow);
+    luxMatrix =  get_matrix(smoothSample(:, SENSOR_ORDER), dataWindow);
 end
 
 
@@ -188,41 +188,75 @@ for iFrame = 1:(pages)
     frames(cast(iFrame, 'uint16')) = getframe(gcf);
     writeVideo(v, frames(iFrame));
 end
- close(v);
- delete(progressBar);
+close(v);
+delete(progressBar);
+
+%%
 mtd1.shadow = struct;
 mtd2.shadow = struct;
 mtd1.shadow.ang = get_csd(magnitude, theta, THRESHOLD);                           %correct raw angles
 [mtd2.shadow.mag, mtd2.shadow.ang] =  get_resultant_vec(magnitude, theta);
-%%
-figure(FMT.FIG);
-figure_setup; load figure_setup %%%%%%% delete me
-  tlo = tiledlayout(TILE.ROWS, TILE.COLS);
-  set(tlo,FMT.TLO);
-    nexttile(TILE.POS(1), TILE.LARGE_SPAN);
-      mtd1.phistBig = polarhistogram(mtd1.shadow.ang, 10);
-      hold on;
-        mtd2.phistBig = polarhistogram(mtd2.shadow.ang, BIN_EDGES);
-      hold off;
-      % mtd1.phist.BinCounts = round(rescale(mtd1.phist.BinCounts,0, 100));
-      % mtd2.phist.BinCounts = round(rescale(mtd2.phist.BinCounts,0, 100));
-      bothMtds.polarAx = gca;
-      title(bothMtds.polarAx, 'Shadow Direction');
-      legend(bothMtds.polarAx, 'Method One', 'Method Two', Location='southoutside');
-      set(bothMtds.polarAx, FMT.POLAX);
-    nexttile(TILE.POS(2));
-      mtd1.phist = polarhistogram(mtd1.shadow.ang, 10);
-      mtd1.polarAx = gca;
-      mtd1.phist.FaceColor = FMT.COLORORDER(1,:);
-      title(mtd1.polarAx, 'Method One');
-      set(mtd1.polarAx, FMT.POLAX);
 
-    nexttile(TILE.POS(3));
-      mtd2.phist = polarhistogram(mtd2.shadow.ang, BIN_EDGES);
-      mtd2.polarAx = gca;
-      mtd2.phist.FaceColor = FMT.COLORORDER(2,:);
-      title(mtd2.polarAx, 'Method Two');
-      set(mtd2.polarAx, FMT.POLAX);
+figure(FMT.FIG);
+
+tlo = tiledlayout(TILE.ROWS, TILE.COLS);
+title(tlo, 'Shadow Direction Probability');
+set(tlo,FMT.TLO);
+nexttile(TILE.POS(1), TILE.LARGE_SPAN);
+
+mtd1.phistBig = polarhistogram(mtd1.shadow.ang, 10, Normalization="probability");
+hold on;
+mtd2.phistBig = polarhistogram(mtd2.shadow.ang, BIN_EDGES, Normalization="probability");
+legendLabels(1) = "Method One";
+legendLabels(2) = "Method Two";
+
+
+mtd1.phistBigProj = polarhistogram(mtd1.shadow.ang, 10, ...
+  Normalization="count", EdgeColor=FMT.COLORORDER(1, :), ...
+  FaceColor='none', LineStyle=':');
+mtd2.phistBigProj = polarhistogram(mtd2.shadow.ang, BIN_EDGES, ...
+  Normalization="count", EdgeColor=FMT.COLORORDER(2, :), ...
+  FaceColor='none', LineStyle=':');
+
+mtd1.phistBigProj.BinCounts(mtd1.phistBig.Values >= 0.05) = 1;
+mtd1.phistBigProj.BinCounts(mtd1.phistBig.Values  < 0.05) = 0;
+mtd2.phistBigProj.BinCounts(mtd2.phistBig.Values >= 0.05) = 1;
+mtd2.phistBigProj.BinCounts(mtd2.phistBig.Values  < 0.05) = 0;
+
+bothMtds.polarAx = gca;
+set(bothMtds.polarAx, FMT.POLAX);
+
+FMT.RTICKSET();
+the = 0:45:315;
+rho = repmat(gca().RLim, 1, length(the));
+the = repelem(deg2rad(the), 2);
+
+for iTheta = 1:2:(length(the)-1)
+  polarplot(the(iTheta:iTheta+1), rho(iTheta:iTheta+1), ...
+      LineWidth=1, LineStyle='-', Color=[0 0 0 0.25]);
+end
+
+hold off;
+legendLabels(3:length(gca().Children)) = repelem("", length(gca().Children) - 2);
+
+legend(bothMtds.polarAx, legendLabels, ...
+    Location='northoutside', Orientation='horizontal');
+set(gca, Children=flipud(gca().Children));
+nexttile(TILE.POS(2));
+mtd1.phist = polarhistogram(mtd1.shadow.ang, 10, Normalization="probability");
+mtd1.polarAx = gca;
+mtd1.phist.FaceColor = FMT.COLORORDER(1,:);
+%       title(mtd1.polarAx, 'Method One');
+set(mtd1.polarAx, FMT.POLAX);
+FMT.RTICKSET();
+
+nexttile(TILE.POS(3));
+mtd2.phist = polarhistogram(mtd2.shadow.ang, BIN_EDGES, Normalization="probability");
+mtd2.polarAx = gca;
+mtd2.phist.FaceColor = FMT.COLORORDER(2,:);
+%       title(mtd2.polarAx, 'Method Two');
+set(mtd2.polarAx, FMT.POLAX);
+FMT.RTICKSET();
 
 saveas(gca, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'fig');                          %save figure
 saveas(gca, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'png');                          %save image

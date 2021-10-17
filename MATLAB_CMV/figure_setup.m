@@ -1,14 +1,11 @@
 function figure_setup()
-  % figure_setup, load figure_setup;
   SENSOR_STRINGS = [' S';'SW';'SE'
                     ' N';'NW';'NE'
                     ' O';' W';' E'];
-  % CARDINAL_DEGREES = ;
   FIGURE_STRINGS  = ["data"
                     "dataSample"
                     "smoothSample"
                     "smoothSampleNorm"];
-
   SCALE = 150;
   FMT = struct;
   FMT.COLORORDER = colororder;
@@ -17,23 +14,20 @@ function figure_setup()
   FMT.AX.YLim = [0 inf];
   FMT.POLAX.FontSize = 10;
   FMT.POLAX.FontWeight = 'normal';
-  FMT.POLAX.ThetaTick = 0:22.5:360;
-  FMT.POLAX.TickLabelInterpreter = 'latex';
+  FMT.POLAX.ThetaTick = 0:15:360;
+  FMT.POLAX.TickLabelInterpreter = 'tex';
+  FMT.RTICKSET = @() set(gca, ...
+    RTickLabel=strcat("\fontsize{7}", string(gca().RTickLabel)));
 
   BIN_EDGES = pi/8:pi/4:2*pi;
   POLAR_ORDER = [9 6 4 5 8 2 1 3];
-  tickSubscripts = [ ' E'; 'NE'; ' N'; 'NW'; ' W'; 'SW';' S'; 'SE'];
-  tickSubscripts = strip(string(tickSubscripts))';
-  tickSubscripts = strcat("$_{^\mathrm{\mathbf{", tickSubscripts);
-  tickSubscripts = strcat( tickSubscripts,"}}}$");
-  tickLabel = string(FMT.POLAX.ThetaTick);
-  % tickLabel(1:3:end-1) = strcat("\color{black}", tickLabel(1:3:end-1));
-  tickInc = round((length(FMT.POLAX.ThetaTick) - 1) / length(BIN_EDGES));
-  tickLabel(1:tickInc:end-1) = ...
-    strcat(tickSubscripts,  tickLabel(1:tickInc:end-1));
-  % tickLabel(2:3:end) = strcat("\color{gray}", tickLabel(2:3:end));
-  % tickLabel(3:3:end) = strcat("\color{gray}", tickLabel(3:3:end));
 
+  tickLabel = string(FMT.POLAX.ThetaTick);
+  tickInc = round((length(FMT.POLAX.ThetaTick) - 1) / length(BIN_EDGES));
+  idx = ~ismember(tickLabel(1:end-1), tickLabel(1:tickInc:end-1));
+  tickLabel(idx) = strcat("\color{gray}\fontsize{7}", tickLabel(idx));
+  % FMT.POLAX_DOTS = @(pax, rmax) polarplot(deg2rad(pax.BinEdges), ...
+  %   repelem(rmax, length(pax.BinEdges)));
   FMT.POLAX.ThetaTickLabel = tickLabel;
   FMT.POLAX.TickLength = [0.2 0] ;
   FMT.POLAX.ThetaMinorTick = 'on' ;
@@ -43,12 +37,11 @@ function figure_setup()
   TILE.POS(1) = 1;
   TILE.POS(2) = 3;
   TILE.POS(3) = 6;
-  FMT.TLO.Padding = 'tight';
-  FMT.TLO.TileSpacing = 'tight';
+  FMT.TLO.Padding = 'compact';
+  FMT.TLO.TileSpacing = 'compact';
 
   FMT.FIG.Units = 'Normalized';
   FMT.FIG.Visible = false;
-  % FMT.FIG.OuterPosition = [0, 0.04, 0.25, 0.25];
   % FMT.FIG.OuterPosition = [0, 0.04, 0.25, 0.25];
 
 

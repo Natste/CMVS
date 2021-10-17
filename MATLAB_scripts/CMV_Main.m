@@ -210,7 +210,7 @@ for idx = 1:(pages-1)
     close
 end
 
-%getVid(GM,strcat(save_filepath,'GradientMatrix'));                          %save GM run as .AVI file
+getVid(GM,strcat(save_filepath,'GradientMatrix'));                          %save GM run as .AVI file
 %%
 % Algorithm 2.1
 angle_rad = getCSD_v2(magnitude,theta,threshold);                           %correct raw angles

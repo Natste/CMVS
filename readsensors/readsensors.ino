@@ -1,63 +1,71 @@
-#include <Wire.h>
 #include <Adafruit_Sensor.h>
+#include <Wire.h>
+#include <stdio.h>
+
 #include "Adafruit_TSL2591.h"
+
+#define MUX1_ADDR 0x70
+#define MUX2_ADDR 0X71
+#define NUM_SENSORS 4
+#define NUM_CH_PER_MUX 8
+#define NUM_MUXES 2
+#define RD_WIDTH 16
+#define RD_DLY 100
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
-void TCA9548A1(uint8_t bus)
-{
-  Wire.beginTransmission(0x71);  // TCA9548A address is 0x70
+void i2cMultiplexSignal(uint8_t addr, uint8_t bus) {
+  Wire.beginTransmission(addr);  // TCA9548A address is 0x70
   Wire.write(1 << bus);          // send byte to select bus
   Wire.endTransmission();
 }
 
-void TCA9548A2(uint8_t bus)
-{
-  Wire.beginTransmission(0x70);  // TCA9548A address is 0x70
-  Wire.write(1 << bus);          // send byte to select bus
-  Wire.endTransmission();
-}
-
-void configureSensor(void)
-{
-  tsl.setGain(TSL2591_GAIN_MED);      // 25x gain
+void configureSensor(void) {
+  tsl.setGain(TSL2591_GAIN_MED);  // 25x gain
   tsl.setTiming(TSL2591_INTEGRATIONTIME_300MS);
 }
 
-void setup(void) 
-{
-  Serial.begin(9600); 
+void setup(void) {
+  Serial.begin(9600);
   configureSensor();
-//  Serial.println(F("Timestamp, IR1, IR2, IR3, IR4, IR5, IR6, IR7, IR8, IR9"));
 }
 
-void advancedRead(void)
-{
-  uint32_t lum = tsl.getFullLuminosity();
-  uint16_t ir, full;
-  ir = lum >> 16;
-  full = lum & 0xFFFF;
-  Serial.print(ir);
+void advancedRead(void) {
+  char     irstr[NUM_SENSORS * RD_WIDTH];
+  uint16_t ir;
+  ir = tsl.getLuminosity(TSL2591_INFRARED);
+  sprintf(irstr, "%6u, ", ir);
+  Serial.print(irstr);
 }
+void readSensors(void) {
+  char     irstr[NUM_SENSORS * RD_WIDTH];
+  uint16_t ir;
 
-void loop(void) 
-{ 
-//  Serial.print(millis());
-//  Serial.print(F(","));
-  for (int i = 0; i < 8; i++)
-  {
-    TCA9548A1(i);
-    advancedRead();
-    Serial.print(F(","));
-  }
-  for (int i = 0; i < 2; i++)
-  {
-    TCA9548A2(i);
-    if (i==0)
-    {
-      advancedRead();
+  for (uint8_t i = 0; i < NUM_CH_PER_MUX * NUM_MUXES; ++i) {
+    if (i == NUM_SENSORS) break;
+    if (i < NUM_CH_PER_MUX) {
+      Wire.beginTransmission(MUX1_ADDR);
+      Wire.write(1 << i);
+    } else {
+      Wire.beginTransmission(MUX1_ADDR);
+      Wire.write(1 << (i - NUM_CH_PER_MUX));
+      Wire.endTransmission();
+      ir = tsl.getLuminosity(TSL2591_INFRARED);
     }
   }
+  Wire.endTransmission();
+  ir = tsl.getLuminosity(TSL2591_INFRARED);
+  sprintf(irstr, "%6u, ", ir);
+  Serial.print(irstr);
+}
+
+void loop(void) {
+  readSensors()
+  //  for (int i = 0; i < NUM_SENSORS; i++) {
+  //    TCA9548A2(i);
+  //    if (i==0) advancedRead();
+  //  }
+  //  advancedRead();
   Serial.println();
-  delay(100);
+  delay(RD_DLY);
 }
