@@ -6,7 +6,7 @@
 
 #define MUX1_ADDR 0x70
 #define MUX2_ADDR 0X71
-#define NUM_SENSORS 4
+#define NUM_SENSORS 9
 #define NUM_CH_PER_MUX 8
 #define NUM_MUXES 2
 #define RD_WIDTH 16

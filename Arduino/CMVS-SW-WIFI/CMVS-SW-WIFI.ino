@@ -13,7 +13,7 @@ unsigned long myChannelNumber = SECRET_CH_ID;
 const char *myWriteAPIKey = SECRET_WRITE_APIKEY;
 
 void setup(void) {
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   populatePinArray();
   Serial.begin(9600);
   sw.setTxBuffer(swTxBuffer, sizeof(swTxBuffer));

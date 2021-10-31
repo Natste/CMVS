@@ -2,8 +2,8 @@
 // and connection details
 #ifndef SECRETS_H
 #define SECRETS_H
-#define SECRET_SSID "SSID_HERE"
-#define SECRET_PASS "PASS_HERE"
+#define SECRET_SSID ""
+#define SECRET_PASS ""
 #define WPI_SSID "WPI-Open"
 #define WPI_PASS "\0"
 

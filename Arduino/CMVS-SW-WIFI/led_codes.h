@@ -6,39 +6,34 @@
 
 uint32_t prev_millis = 0;
 
-void ledToggle(uint16_t T_ON, uint16_t T_OFF) {
+void ledToggle(uint16_t t_on_ms, uint16_t t_off_ms, uint8_t led_pin = LED_PIN) {
   static uint8_t led_state = LOW;
   uint32_t curr_millis = millis();
   if (led_state == LOW)
-    if (curr_millis - prev_millis >= (T_OFF)) {
+    if (curr_millis - prev_millis >= (t_off_ms)) {
       prev_millis = curr_millis;
       led_state = HIGH;
-      digitalWrite(LED_BUILTIN, led_state);
+      digitalWrite(LED_PIN, led_state);
     }
     if (led_state == HIGH) {
-      delay(T_ON);
+      delay(t_on_ms);
       led_state = LOW;
-      digitalWrite(LED_BUILTIN, led_state);
+      digitalWrite(LED_PIN, led_state);
     }
-  // if (led_state == HIGH)
-  //   if (curr_millis - prev_millis >= (T_ON)) {
-  //     prev_millis = curr_millis;
-  //     led_state = LOW;
-  //     digitalWrite(LED_BUILTIN, led_state);
-  //   }
 }
-void ledDelay(uint16_t T_ON, uint16_t T_OFF) {
+
+void ledDelay(uint16_t t_on_ms, uint16_t t_off_ms, uint8_t led_pin = LED_PIN) {
   static uint8_t led_state = LOW;
   uint32_t curr_millis = millis();
   if (led_state == LOW) {
-    delay(T_OFF);
+    delay(t_off_ms);
     led_state = HIGH;
-    digitalWrite(LED_BUILTIN, led_state);
+    digitalWrite(LED_PIN, led_state);
   }
   if (led_state == HIGH) {
-    delay(T_ON);
+    delay(t_on_ms);
     led_state = LOW;
-    digitalWrite(LED_BUILTIN, led_state);
+    digitalWrite(LED_PIN, led_state);
   }
 }
 
