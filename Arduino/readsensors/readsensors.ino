@@ -10,7 +10,7 @@
 #define NUM_CH_PER_MUX 8
 #define NUM_MUXES 2
 #define RD_WIDTH 16
-#define RD_DLY 100
+#define RD_DLY 300
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
@@ -60,11 +60,6 @@ void readSensors(void) {
 
 void loop(void) {
   readSensors();
-  //  for (int i = 0; i < NUM_SENSORS; i++) {
-  //    TCA9548A2(i);
-  //    if (i==0) advancedRead();
-  //  }
-  //  advancedRead();
   Serial.println();
   delay(RD_DLY);
 }
