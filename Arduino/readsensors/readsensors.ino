@@ -47,16 +47,15 @@ void readSensors(void) {
       Wire.beginTransmission(MUX1_ADDR);
       Wire.write(1 << i);
     } else {
-      Wire.beginTransmission(MUX1_ADDR);
+      Wire.beginTransmission(MUX2_ADDR);
       Wire.write(1 << (i - NUM_CH_PER_MUX));
-      Wire.endTransmission();
-      ir = tsl.getLuminosity(TSL2591_INFRARED);
     }
+    Wire.endTransmission();
+    ir = tsl.getLuminosity(TSL2591_INFRARED);
+    sprintf(irstr, "%6u, ", ir);
+    Serial.print(irstr);
   }
-  Wire.endTransmission();
-  ir = tsl.getLuminosity(TSL2591_INFRARED);
-  sprintf(irstr, "%6u, ", ir);
-  Serial.print(irstr);
+
 }
 
 void loop(void) {
