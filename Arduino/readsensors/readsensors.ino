@@ -10,7 +10,7 @@
 #define NUM_CH_PER_MUX 8
 #define NUM_MUXES 2
 #define RD_WIDTH 16
-#define RD_DLY 300
+#define RD_DLY 500
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
@@ -26,17 +26,11 @@ void configureSensor(void) {
 }
 
 void setup(void) {
-  Serial.begin(9600);
   configureSensor();
+  delay(RD_DLY);
+  Serial.begin(9600);
 }
 
-void advancedRead(void) {
-  char     irstr[NUM_SENSORS * RD_WIDTH];
-  uint16_t ir;
-  ir = tsl.getLuminosity(TSL2591_INFRARED);
-  sprintf(irstr, "%6u, ", ir);
-  Serial.print(irstr);
-}
 void readSensors(void) {
   char     irstr[NUM_SENSORS * RD_WIDTH];
   uint16_t ir;
