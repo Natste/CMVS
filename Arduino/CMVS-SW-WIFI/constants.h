@@ -19,5 +19,5 @@
 #define T_STUCK_OFF 4000
 #define T_PROCESSING_ON 10
 #define T_PROCESSING_OFF 1000
-#define LED_PIN A0
+#define LED_PIN A6
 // #define LED_PIN LED_BUILTIN

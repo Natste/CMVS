@@ -25,6 +25,7 @@ void setup(void) {
   printArduinoMac();
   wifiSetup();
   ThingSpeak.begin(client); // Initialize ThingSpeak
+    delay(300);
 }
 
 String getDataStr(uint32_t data) {
@@ -65,10 +66,15 @@ void loop(void) {
   String data_str, status_str;
   for (uint8_t i = 0; i < N_SENSORS; ++i) {
     setSwPins();
+      Serial.print("[");
+  Serial.print(sw.getSda());
+  Serial.print(sw.getScl());
+  Serial.print("]");
     uint32_t data = getSwData();
     data_str.concat(getDataStr(data));
   }
   ThingSpeak.writeField(myChannelNumber, DATA_CH, data_str, myWriteAPIKey);
+
   Serial.println(data_str);
   status_str = getConnectionStatus();
   if (WiFi.status() != WL_CONNECTED) {

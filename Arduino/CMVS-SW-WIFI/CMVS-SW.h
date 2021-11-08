@@ -15,8 +15,12 @@ uint8_t mode = FULL_MODE;
 uint8_t swTxBuffer[BUFLEN];
 uint8_t swRxBuffer[BUFLEN];
 
-uint8_t sdaPin = 2;
-uint8_t sclPin = 3;
+uint8_t sdaPin = 3;
+// const uint8_t sclPins[] = {8, 6, 4, 2};
+// const uint8_t sdaPins[] = {9, 7, 5, 3};
+const uint8_t sdaPins[] = {2, 4, 6, 8, 11, 14, 16, 18, 20};
+const uint8_t sclPins[] = {3, 5, 7, 9, 12, 15, 17, 19, 21};
+uint8_t sclPin = 2;
 SoftWire sw(sdaPin, sclPin);
 
 uint8_t pins[(N_SENSORS << 1)];
@@ -85,14 +89,14 @@ void configureSensor(void) {
 
 void setSwPins(void) {
   static uint8_t pin = 0;
-  sw.setScl(pins[pin]);
-  pin++;
-  sw.setSda(pins[pin]);
-  pin++;
+  sw.setSda(sdaPins[pin]);
+    // pin = (pin >= (N_SENSORS << 1)-1) ? 0 : pin + 1;
+  sw.setScl(sclPins[pin]);
+    // pin = (pin >= (N_SENSORS << 1)-1) ? 0 : pin + 1;
+  sw.begin();
   configureSensor();
-  if (pin >= (N_SENSORS << 1) - 1) {
-    pin = 0;
-  }
+  pin = (pin < N_SENSORS - 1) ? pin + 1 : 0 ;
+
 }
 
 float calculateLux(uint32_t lum) {

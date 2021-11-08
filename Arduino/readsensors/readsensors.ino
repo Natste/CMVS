@@ -6,11 +6,11 @@
 
 #define MUX1_ADDR 0x70
 #define MUX2_ADDR 0X71
-#define NUM_SENSORS 9
+#define NUM_SENSORS 2
 #define NUM_CH_PER_MUX 8
 #define NUM_MUXES 2
 #define RD_WIDTH 16
-#define RD_DLY 500
+#define RD_DLY 100
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
 
@@ -27,8 +27,8 @@ void configureSensor(void) {
 
 void setup(void) {
   configureSensor();
-  delay(RD_DLY);
   Serial.begin(9600);
+  delay(RD_DLY);
 }
 
 void readSensors(void) {
@@ -37,6 +37,7 @@ void readSensors(void) {
 
   for (uint8_t i = 0; i < NUM_CH_PER_MUX * NUM_MUXES; ++i) {
     if (i == NUM_SENSORS) break;
+    delay(RD_DLY);
     if (i < NUM_CH_PER_MUX) {
       Wire.beginTransmission(MUX1_ADDR);
       Wire.write(1 << i);
@@ -55,5 +56,5 @@ void readSensors(void) {
 void loop(void) {
   readSensors();
   Serial.println();
-  delay(RD_DLY);
+
 }
