@@ -1,7 +1,7 @@
 function figure_setup()
-  SENSOR_STRINGS = [' S';'SW';'SE'
-                    ' N';'NW';'NE'
-                    ' O';' W';' E'];
+  SENSOR_STRINGS = ['NW';' N';'NE'
+                    ' W';' O';' E'
+                    'SW';' S';'SE'];
   FIGURE_STRINGS  = ["data"
                     "dataSample"
                     "smoothSample"
