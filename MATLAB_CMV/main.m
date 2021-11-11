@@ -1,7 +1,7 @@
 clf; close all; clear frames paddedData;
 
-DATA_FILE = '';
-OUTPUT_DIR = '';
+DATA_FILE = '../Data/11-9-sensors-only.csv';
+OUTPUT_DIR = '11-9-output';
 % OUTPUT_DIR = 'output';
 MATRIX_TYPE = 'normalized';
 THRESHOLD = 0.03;
@@ -9,24 +9,34 @@ PEAK_DISTANCE = 50;
 PEAK_PROMINENCE = 0.15;%0.016;
 PEAK_WIDTH = 15;
 SENSOR_ORDER  = [5 4 6 8 7 9 2 1 3]; % Northwest to Southeast
+DATA_ORDER  =   [9 4 8 3 5 1 7 2 6]; % Northwest to Southeast
+DATA_PAD = 0;
 FILL_ORDER  =   [4 1 8 9 6 2 5 3 7]; % N S W E NE SW NW SE O
 % SENSOR_ORDER = FILL_ORDER;
-
-
+if ispc
+    DELIMITER = '\';
+else
+    DELIMITER = '/';
+end
 figure_setup;
 load figure_setup SENSOR_STRINGS FIGURE_STRINGS FMT BIN_EDGES SCALE TILE;
 
 if ~isfile(DATA_FILE)
-    DATA_FILE = uigetfile('*.csv;*.txt;*.dat', 'Select Input CSV Data', 'data.csv');
+    [DATA_FILE, DATA_FILE_PATH] = uigetfile('*.csv;*.txt;*.dat', 'Select Input CSV Data', 'data.csv');
+    DATA_FILE = [DATA_FILE_PATH, DATA_FILE];
 end
 if ~isfolder(OUTPUT_DIR)
     OUTPUT_DIR = uigetdir('.', 'Select Output Directory');
 end
 
-
+%%
 % Read and transfer raw lux data to new array
-data = readmatrix(DATA_FILE);
-%%%
+data = readmatrix(DATA_FILE, OutputType='string');
+if ~isempty(regexp(data, '[a-fx]', 'once'))
+    data = hex2dec(data);
+end
+uint32(data);
+
 % data = data(:, 1:end-1);
 % data = data(:, FILL_ORDER);
 %%%
@@ -35,8 +45,8 @@ nSensors = round(mean(nNotNan));
 data = data(nNotNan == nSensors, :);
 data = rmmissing(data, 2);
 
-iDataStart = 1;
-iDataEnd = 61;
+iDataStart = 846 - DATA_PAD;
+iDataEnd = 927 + DATA_PAD;
 iDelta = iDataEnd - iDataStart;
 dataWindow = 10; % TODO: figure why this var was referred to as 'window'
 filterWindow = 11;
@@ -85,6 +95,7 @@ if nSensors < 9
 end
 
 dataSample =  get_sample_range(data, iDataStart, iDataEnd);
+dataSample = dataSample(:, DATA_ORDER);
 dataSampleNorm =  get_norm(dataSample);
 smoothSample = smoothdata(dataSample, 'sgolay', filterWindow);
 smoothSampleNorm = smoothdata(dataSampleNorm, 'sgolay', filterWindow);
@@ -139,7 +150,7 @@ for iSensor = 1:nSensors
     if isempty(dipLoc)
         dipLocArr(iSensor) = 0;
     else
-        dipLocArr(iSensor) = dipLoc;
+        dipLocArr(iSensor) = dipLoc(1);
     end
 
     sensorPlot(iSensor) = plot(t, smoothSampleNorm(:, iSensor), ...
@@ -165,6 +176,7 @@ end
 
 
 %% Find cmv direction using Gradient Matrix Method
+clear XLim yLim
 pages = length(luxMatrix);                                              %find maxnumber of frames
 imData =  luxMatrix(:, :, 1:pages);                                            %set dataset to be analyzed
 [imageRow, imageCol, ~] = size(imData);
@@ -174,18 +186,37 @@ theta2 = repelem(0, pages);
 frames(pages) = struct('cdata',[],'colormap',[]);
 figure(FMT.FIG);
 % set(gcf, Visible = false);
-progressBar = waitbar(0, '1', Name='Creating Video');
-v = VideoWriter(strcat(OUTPUT_DIR, 'GradientMatrix'));
-open(v);
+progressBar = waitbar(0, '1', Name='Populating Frames');
+
+qFigs = nan(1, pages);
 for iFrame = 1:(pages)
-    waitbar(iFrame/pages, progressBar, sprintf("Frame %6d / %6d", iFrame, pages));
+    waitbar(iFrame/pages, progressBar, sprintf("Frame %4d / %4d\n%3d%% complete", iFrame, pages, ceil(iFrame/pages * 100)));
     [gx, gy] = imgradientxy( imData(:, :, iFrame), 'sobel');
     [gmag, gdir] = imgradient(gx, gy);
-
     theta(:, :, iFrame) = gdir;
     magnitude(:, :, iFrame) = gmag;
-    quiver(gx, -gy); %invert to correct visual vector orientation
-    frames(cast(iFrame, 'uint16')) = getframe(gcf);
+    figure(FMT.FIG);
+    q = quiver(gx, -gy); %invert to correct visual vector orientation
+    xAbsPos = [floor(q.XData + q.UData); ceil(q.XData + q.UData)];
+    [xLim(1), xLim(2)] = bounds(xAbsPos, 'all');
+    yAbsPos = [floor(q.YData - q.VData); ceil(q.YData - q.VData)];
+    [yLim(1), yLim(2)] = bounds(yAbsPos, 'all');
+    qFigs(iFrame) = gcf;
+end
+delete(progressBar);
+
+progressBar = waitbar(0, '1', Name='Creating Video');
+videoFmt = 'MPEG-4';
+videoTitle = string([OUTPUT_DIR, DELIMITER, 'GradientMatrix']);
+v = VideoWriter(videoTitle, videoFmt);
+v.FrameRate = 30;
+open(v);
+for iFrame = 1:(pages)
+    waitbar(iFrame/pages, progressBar, sprintf("Frame %4d / %4d\n%3d%% complete", iFrame, pages, ceil(iFrame/pages * 100)));
+    ax = gca(qFigs(iFrame));
+    xlim(ax, xLim);
+    ylim(ax, yLim);
+    frames(cast(iFrame, 'uint16')) = getframe(qFigs(iFrame));
     writeVideo(v, frames(iFrame));
 end
 close(v);

@@ -1,0 +1,2 @@
+CMV_Direction1 CMV_Direction2 CMV_Speed1 CMV_Speed2
+173.75 277.04 0.25 1.05
