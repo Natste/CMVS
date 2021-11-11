@@ -10,7 +10,6 @@ PEAK_PROMINENCE = 0.15;%0.016;
 PEAK_WIDTH = 15;
 SENSOR_ORDER  = [5 4 6 8 7 9 2 1 3]; % Northwest to Southeast
 DATA_ORDER  =   [9 4 8 3 5 1 7 2 6]; % Northwest to Southeast
-DATA_PAD = 0;
 FILL_ORDER  =   [4 1 8 9 6 2 5 3 7]; % N S W E NE SW NW SE O
 % SENSOR_ORDER = FILL_ORDER;
 if ispc
@@ -44,12 +43,12 @@ nSensors = round(mean(nNotNan));
 data = data(nNotNan == nSensors, :);
 data = rmmissing(data, 2);
 
-% iDataStart = 660 - DATA_PAD;
-% iDataEnd = 770 + DATA_PAD;
-% iDataStart = 840 - DATA_PAD; % 10 ft/ 30 s -- whole array
-% iDataEnd = 940 + DATA_PAD;
-iDataStart = 1030 - DATA_PAD; % 10 ft / 10 s -- whole array
-iDataEnd = 1130 + DATA_PAD;
+% iDataStart = 660;
+% iDataEnd = 770;
+iDataStart = 840; % 10 ft/ 30 s -- whole array
+iDataEnd = 940;
+% iDataStart = 1030; % 10 ft / 10 s -- whole array
+% iDataEnd = 1130;
 iDelta = iDataEnd - iDataStart;
 dataWindow = 50; % TODO: figure why this var was referred to as 'window'
 filterWindow = 11;
