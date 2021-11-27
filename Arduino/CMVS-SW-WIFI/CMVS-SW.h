@@ -18,8 +18,8 @@ uint8_t swRxBuffer[BUFLEN];
 uint8_t sdaPin = 3;
 // const uint8_t sclPins[] = {8, 6, 4, 2};
 // const uint8_t sdaPins[] = {9, 7, 5, 3};
-const uint8_t sdaPins[] = {2, 4, 6, 8, 11, 14, 16, 18, 20};
-const uint8_t sclPins[] = {3, 5, 7, 9, 12, 15, 17, 19, 21};
+const uint8_t sdaPins[] = {2, 4, 6, 8, 10, 14, 16, 18, 20};
+const uint8_t sclPins[] = {3, 5, 7, 9, 11, 15, 17, 19, 21};
 uint8_t sclPin = 2;
 SoftWire sw(sdaPin, sclPin);
 
@@ -179,7 +179,7 @@ float calculateLux(uint32_t lum) {
 uint32_t getSwData(void) {
   uint32_t data;
   enable();
-  for (uint8_t d = 0; d <= TSL2591_INTEGRATIONTIME_300MS; d++) {
+  for (uint8_t d = 0; d <= CMVS_INTEGRATION; d++) {
     delay(120);
   }
 

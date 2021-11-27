@@ -18,7 +18,9 @@ WiFiClient client;
 
 uint8_t getNetworkIndex(void) {
   // scan for nearby networks:
+  delay(1000);
   Serial.print("Scanning Known Networks...");
+  
   int numSsid = WiFi.scanNetworks();
   if (numSsid == -1) {
     Serial.println("Couldn't get a WiFi connection");
@@ -26,6 +28,7 @@ uint8_t getNetworkIndex(void) {
       ledStuck();
   }
   for (uint8_t thisNet = 0; thisNet < numSsid; thisNet++) {
+    Serial.println(WiFi.SSID(thisNet));
     for (const String &ssid : ssid_list) {
       if ((String)WiFi.SSID(thisNet) == ssid) {
         Serial.print("found ");
