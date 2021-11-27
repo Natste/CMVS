@@ -46,6 +46,7 @@ checkArray(1, 1) = angleLabel(start);
 maxCheck = start + ceil(maxRow / 8);
 
 cnt = 1;
+disp([start maxCheck]);
 for idx = start:maxCheck
     if ~isequal(angleLabel(idx), checkArray(cnt)) %check if qudrant is not the same
         cnt = cnt + 1;  %increment
