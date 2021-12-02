@@ -6,7 +6,7 @@
 
 uint32_t prev_millis = 0;
 
-void ledToggle(uint16_t t_on_ms, uint16_t t_off_ms, uint8_t led_pin = LED_PIN) {
+void ledToggle(uint16_t t_on_ms, uint16_t t_off_ms) {
   static uint8_t led_state = LOW;
   uint32_t curr_millis = millis();
   if (led_state == LOW)
@@ -22,9 +22,8 @@ void ledToggle(uint16_t t_on_ms, uint16_t t_off_ms, uint8_t led_pin = LED_PIN) {
     }
 }
 
-void ledDelay(uint16_t t_on_ms, uint16_t t_off_ms, uint8_t led_pin = LED_PIN) {
+void ledDelay(uint16_t t_on_ms, uint16_t t_off_ms) {
   static uint8_t led_state = LOW;
-  uint32_t curr_millis = millis();
   if (led_state == LOW) {
     delay(t_off_ms);
     led_state = HIGH;

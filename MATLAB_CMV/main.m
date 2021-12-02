@@ -12,7 +12,7 @@ SENSOR_ORDER  = [5 4 6 8 7 9 2 1 3]; % Northwest to Southeast
 DATA_ORDER  =   [9 4 8 3 5 1 7 2 6]; % Northwest to Southeast
 FILL_ORDER  =   [4 1 8 9 6 2 5 3 7]; % N S W E NE SW NW SE O
 CREATE_VIDEO = false;
-CREATE_PLOTS = false;
+CREATE_PLOTS = true;
 % SENSOR_ORDER = FILL_ORDER;
 if ispc % Check to see if operating system is Windows
   DELIMITER = '\';
@@ -32,27 +32,27 @@ if ~isfolder(OUTPUT_DIR)
 end
 
 % Read and transfer raw lux data to new array
-% data = readmatrix(DATA_FILE, OutputType='string');
-% if ~isempty(regexp(data, '[a-fx]', 'once')) % Check if data is hex
-%   data = hex2dec(data); % If hex, convert to decimal
-% end
-% uint32(data);
+data = readmatrix(DATA_FILE, OutputType='string');
+if ~isempty(regexp(data, '[a-fx]', 'once')) % Check if data is hex
+  data = hex2dec(data); % If hex, convert to decimal
+end
+data = uint32(data);
 
 
-%%%%%%
-i = 0;
-lastMat = 0;
-T = thingSpeakRead(1552033, ... % Get table from TSpeak
-    Fields=1, ...
-    NumPoints=1661, ...
-    ReadKey='AD8ZB04MFD6HIYI8', ...
-    OutputFormat='table');
-dataCol = T(:, {'cmvsData'});       % time & data cols -> data col
-dataCol = rowfun(@string, dataCol); % char table -> str table
-data = dataCol{:,:};                %  str table -> str array
-data = arrayfun(@(x) uint32(str2num(x)), data, ...
-                uniform=false);     % str array -> uint32 cell array
-data = cell2mat(data);              % uint32 cell array -> uint32 array
+%%%%%% THINGS PEAK
+% i = 0;
+% lastMat = 0;
+% T = thingSpeakRead(1552033, ... % Get table from TSpeak
+%     Fields=1, ...
+%     NumPoints=1661, ...
+%     ReadKey='AD8ZB04MFD6HIYI8', ...
+%     OutputFormat='table');
+% dataCol = T(:, {'cmvsData'});       % time & data cols -> data col
+% dataCol = rowfun(@string, dataCol); % char table -> str table
+% data = dataCol{:,:};                %  str table -> str array
+% data = arrayfun(@(x) uint32(str2num(x)), data, ...
+%                 uniform=false);     % str array -> uint32 cell array
+% data = cell2mat(data);              % uint32 cell array -> uint32 array
 %%%%%%
 
 nNotNan  = sum(~isnan(data),2); % count number of valid values in each row
@@ -63,10 +63,10 @@ data = rmmissing(data, 2); % Exclude any remaining columns that contain a Nan
 iLoop = 1;
 % iDataStart = 660;
 % iDataEnd = 770;
-iDataStart = 1;
-iDataEnd = 101;
-% iDataStart = 840; % 10 ft/ 30 s -- whole array
-% iDataEnd = 940;
+% iDataStart = 1;
+% iDataEnd = 101;
+iDataStart = 840; % 10 ft/ 30 s -- whole array
+iDataEnd = 940;
 
 % iDataStart = 1030 + 24; % 10 ft / 10 s -- whole array
 % iDataEnd = 1130 - 24;
@@ -118,12 +118,16 @@ if nSensors < 9
   nSensors = 9;
 end
 
-while iDataStart + iDelta < height(dataCol)
-iDataEnd = iDataStart +  iDelta;
-dataSample =  get_sample_range(data, iDataStart, iDataEnd);
-dataSample = dataSample(:, DATA_ORDER);
-dataSampleNorm =  get_norm(dataSample);
-smoothSample = smoothdata(dataSample, 'sgolay', filterWindow);
+% while iDataStart + iDelta < height(dataCol)
+% Tsl = Sensor;
+% data             = calculate_lux(Tsl, data);
+
+iDataEnd         = iDataStart +  iDelta;
+
+dataSample       = get_sample_range(data, iDataStart, iDataEnd);
+dataSample       = dataSample(:, DATA_ORDER);
+dataSampleNorm   = get_norm(dataSample);
+smoothSample     = smoothdata(dataSample, 'sgolay', filterWindow);
 smoothSampleNorm = smoothdata(dataSampleNorm, 'sgolay', filterWindow);
 
 %% Plot Sensor Data
@@ -344,7 +348,7 @@ figure(gcf);
 saveas(gcf, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'png');                          %save image
 iLoop = iLoop + 1;
 iDataStart = iDataEnd;
-end % while iDataStart + iLoop * iDelta < height(dataCol)
+% end % while iDataStart + iLoop * iDelta < height(dataCol)
 %% Find the optical flow
 % OpF =  get_optical_flow(imData);
 %  get_vid(OpF, strcat(OUTPUT_DIR, 'OpticalFlow'));                          %save OpF run as .AVI file

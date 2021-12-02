@@ -10,7 +10,7 @@
 
 AsyncDelay readInterval;
 
-uint8_t mode = FULL_MODE;
+uint8_t mode = LUM_MODE;
 
 uint8_t swTxBuffer[BUFLEN];
 uint8_t swRxBuffer[BUFLEN];
@@ -18,8 +18,8 @@ uint8_t swRxBuffer[BUFLEN];
 uint8_t sdaPin = 3;
 // const uint8_t sclPins[] = {8, 6, 4, 2};
 // const uint8_t sdaPins[] = {9, 7, 5, 3};
-const uint8_t sdaPins[] = {2, 4, 6, 8, 10, 14, 16, 18, 20};
-const uint8_t sclPins[] = {3, 5, 7, 9, 11, 15, 17, 19, 21};
+const uint8_t sdaPins[] = {SDA_NW, SDA_N, SDA_NE, SDA_W, SDA_C, SDA_E, SDA_SW, SDA_S, SDA_SE};// 17 14 12 11 8 7 4 2 21
+const uint8_t sclPins[] = {SCL_NW, SCL_N, SCL_NE, SCL_W, SCL_C, SCL_E, SCL_SW, SCL_S, SCL_SE};// 16 15 13 10 9 6 5 3 20
 uint8_t sclPin = 2;
 SoftWire sw(sdaPin, sclPin);
 
@@ -161,16 +161,23 @@ float calculateLux(uint32_t lum) {
   cpl = (aTime * aGain) / TSL2591_LUX_DF;
 
   // Original lux calculation (for reference sake)
-  // lux1 = ( (float)ir - (TSL2591_LUX_COEFB * (float)full) ) / cpl;
-  // lux2 = ( ( TSL2591_LUX_COEFC * (float)ir ) - ( TSL2591_LUX_COEFD *
-  // (float)full ) ) / cpl; lux = lux1 > lux2 ? lux1 : lux2;
+  lux1 = (
+           (float)ir - (TSL2591_LUX_COEFB * (float)full)
+         ) / cpl;
+  lux2 = (
+          (TSL2591_LUX_COEFC * (float)ir)
+          - (TSL2591_LUX_COEFD * (float)full)
+         ) / cpl;
+  lux = (   0 > lux1) ? 0 :
+        (lux1 > lux2) ? lux1:
+        lux2;
 
   // Alternate lux calculation 1
   // See: https://github.com/adafruit/Adafruit_TSL2591_Library/issues/14
-  lux = (((float)ir - (float)full)) * (1.0F - ((float)full / (float)ir)) / cpl;
+  // lux = (((float)ir - (float)full)) * (1.0F - ((float)full / (float)ir)) / cpl;
 
   // Alternate lux calculation 2
-  // lux = ( (float)ir - ( 1.7F * (float)full ) ) / cpl;
+  // lux = ((float)ir - (1.7F * (float)full)) / cpl;
 
   // Signal I2C had no errors
   return lux;

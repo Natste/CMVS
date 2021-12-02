@@ -3,7 +3,12 @@
 #define DISCONNECTED "Disconnected!"
 #define CONNECTED "Connected."
 
-#include "secrets.h"
+#if __has_include("local_secrets.h")
+  #include "local_secrets.h"
+#else
+  #include "secrets.h"
+#endif
+
 #include "led_codes.h"
 #include <WiFiNINA.h>
 
@@ -20,7 +25,7 @@ uint8_t getNetworkIndex(void) {
   // scan for nearby networks:
   delay(1000);
   Serial.print("Scanning Known Networks...");
-  
+
   int numSsid = WiFi.scanNetworks();
   if (numSsid == -1) {
     Serial.println("Couldn't get a WiFi connection");
@@ -37,6 +42,7 @@ uint8_t getNetworkIndex(void) {
       }
     }
   }
+  return 0xFF;
 }
 
 void wifiSetup(void) {

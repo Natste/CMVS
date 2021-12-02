@@ -19,5 +19,25 @@
 #define T_STUCK_OFF 4000
 #define T_PROCESSING_ON 10
 #define T_PROCESSING_OFF 1000
-#define LED_PIN 12
+#define LED_PIN 19
 // #define LED_PIN LED_BUILTIN
+
+#define SDA_E  17
+#define SDA_SE 14
+#define SDA_S  12
+#define SDA_SW 11
+#define SDA_W   8
+#define SDA_C   7
+#define SDA_NW  4
+#define SDA_N   2
+#define SDA_NE 21
+
+#define SCL_E  16
+#define SCL_SE 15
+#define SCL_S  13
+#define SCL_SW 10
+#define SCL_W   9
+#define SCL_C   6
+#define SCL_NW  5
+#define SCL_N   3
+#define SCL_NE 20

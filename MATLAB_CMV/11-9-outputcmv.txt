@@ -1,2 +1,2 @@
 CMV_Direction1 CMV_Direction2 CMV_Speed1 CMV_Speed2
-40.01 NaN 213.02 NaN
+174.24 0.25 277.38 1.05
