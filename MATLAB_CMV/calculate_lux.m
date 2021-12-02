@@ -2,7 +2,7 @@ function [lux, luxIfBright, luxIfDim] = calculate_lux(Tsl, lum)
 lumsize = size(lum);
 lumel = numel(lum);
 lum = uint32(lum(:))';
-lum = struct(full=bitshift(lum, -16), ir=bitand(lum, 0x0000FFFF));
+lum = struct(full=bitshift(lum, -16), ir=bitand(lum, 0x0000FFFF)); %comment
 
 % Note: This algorithm is based on preliminary coefficients
 % provided by AMS and may need to be updated in the future
