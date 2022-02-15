@@ -337,12 +337,19 @@ cmvSpeed1     = get_cmv_speed(cmvDirection1, dipLocArr);
 cmvSpeed2     = get_cmv_speed(cmvDirection2, dipLocArr);
 cmvSpeed1     = fillmissing(cmvSpeed1, "nearest", EndValues='nearest');
 cmvSpeed2     = fillmissing(cmvSpeed2, "nearest", EndValues='nearest');
-cmv           = [cmvDirection1 cmvSpeed1 cmvDirection2 cmvSpeed2];
+pvSite_dist   = 5; % Distance the sensor cluster is from the PV Site. Units??
+pvSite_phi    = 30; %The angle from the site?
+TOA           = TimeOfArrival(pvSite_dist,pvSite_phi,cmvSpeed1,cmvDirection1);
+cmv           = [TOA cmvDirection1 cmvSpeed1 cmvDirection2 cmvSpeed2];
+clk_raw       = clock; %Outputs the [Year Month Day Hour Min Sec]
+clk           = fix(clk_raw); %Rounds each entry in clock matrix, only impacts seconds
 
 % tlo.OuterPosition = tlo.OuterPosition .* [1 1 1 1 + 0.125];
 % tlo.InnerPosition = tlo.InnerPosition .* [1 1 1 1 + 0.125];
-txt = sprintf('Dir(1)=% 6.5g Speed(1)=% 6.5g <> Dir(2)=% 6.5g Speed(2)=% 6.5g', cmv);
+clk_txt = sprintf('Yr=%g Mth=%g Day=%g Hr=%g Min=%g Sec=%g', clk);
+txt = sprintf('TOA[s]=%6.5g Dir(1)=% 6.5g Speed(1)=% 6.5g <> Dir(2)=% 6.5g Speed(2)=% 6.5g', cmv);
 textWrapper(txt, gca, [1 -0.18]);
+textWrapper(clk_txt, gca, [1.1 2.55]); %Displays the time in the top right
 figure(gcf);
 % saveas(gcf, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'fig');                          %save figure
 saveas(gcf, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'png');                          %save image
@@ -357,3 +364,8 @@ fileID = fopen(strcat(OUTPUT_DIR, 'cmv.txt'), 'w');
 fprintf(fileID, '%6s %6s %6s %6s\n', 'CMV_Direction1', 'CMV_Direction2', 'CMV_Speed1', 'CMV_Speed2');
 fprintf(fileID, '%0.2f %0.2f %0.2f %0.2f\n', cmv);
 fclose(fileID);
+
+%% Calculate time of arrival
+function TOA = TimeOfArrival(d,phi,v,theta)
+        TOA = d/(v*cos(deg2rad(phi-theta)));
+end
