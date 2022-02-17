@@ -1,4 +1,5 @@
 clear frames paddedData;
+clear; clc;
 
 DATA_FILE = '../Data/11-9-sensors-only.csv';
 OUTPUT_DIR = '11-9-output';
