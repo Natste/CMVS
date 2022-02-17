@@ -346,10 +346,10 @@ clk           = fix(clk_raw); %Rounds each entry in clock matrix, only impacts s
 
 % tlo.OuterPosition = tlo.OuterPosition .* [1 1 1 1 + 0.125];
 % tlo.InnerPosition = tlo.InnerPosition .* [1 1 1 1 + 0.125];
-clk_txt = sprintf('Yr=%g Mth=%g Day=%g Hr=%g Min=%g Sec=%g', clk);
-txt = sprintf('TOA[s]=%6.5g Dir(1)=% 6.5g Speed(1)=% 6.5g <> Dir(2)=% 6.5g Speed(2)=% 6.5g', cmv);
-textWrapper(txt, gca, [1 -0.18]);
-textWrapper(clk_txt, gca, [1.1 2.55]); %Displays the time in the top right
+clk_txt = sprintf('%g/%g/%g  %g:%g:%g', clk);
+txt = sprintf('TOA(s)=%6.5g Dir1(θ)=% 6.5g Speed1(m/s)=% 6.5g <> Dir2(θ)=% 6.5g Speed2(m/2)=% 6.5g', cmv);
+textWrapper(txt, gca, [1.13 -0.18]);
+textWrapper(clk_txt, gca, [0.90 2.55]); %Displays the time in the top right
 figure(gcf);
 % saveas(gcf, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'fig');                          %save figure
 saveas(gcf, fullfile(OUTPUT_DIR, 'cmv_histogram'), 'png');                          %save image
